@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS and JS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <!-- Toastr CSS and JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toast.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+
+    <title>FRUIT DATABASE</title>
+</head>
+
+<body class="bg-dark">
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        CREATE / RETRIEVE / UPDATE / DELETE
+                        <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#create">
+                            CREATE FRUITS
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="fruitSearch" id="fruitSearch"
+                                       placeholder="Search Here..." autofocus required>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">ID</th>
+                                        <th>Fruit</th>
+                                        <th>Quantity</th>
+                                        <th>Registered</th>
+                                        <th>Updated</th>
+                                        <th class="text-center">Edit</th>
+                                        <th class="text-center">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- SHOW FRUITS DATA -->
+                                    {% for data in output %}
+                                    <tr>
+                                        <td class="text-center">{{ data.id }}</td>
+                                        <td class="text-center">{{ data.fruit_name }}</td>
+                                        <td class="text-center">{{ data.qty }}</td>
+                                        <td class="text-center">{{ data.fruit_created }}</td>
+                                        <td class="text-center">{{ data.fruit_updated }}</td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-info" data-bs-toggle="modal" name={{data.fruit_name}}>Edit</button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" name={{data.fruit_name}}>Delete</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                         <!-- EDIT Modal -->
+                         <div class="modal fade" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Fruit - </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="fruit_update.php?fruitId=<?=$fruit['fruit_id']?>" method="POST">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="" class="form-label">Fruit Name</label>
+                                                <input type="text" class="form-control" name="fruitName" value="<?=$fruit['fruit_name']?>" required>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label for="" class="form-label">Quantity</label>
+                                                <input type="text" class="form-control" name="fruitQty" min="0" step="0.01" value="<?=$fruit['fruit_qty']?>" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" name="updateFruit" class="btn btn-primary">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DELETE MODAL -->
+                        <div class="modal fade" tabindex="-1" role="dialog" id="delete_<?=$fruit['fruit_id']?>">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Delete Fruit - </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        <div class="modal-body">
+                                            <p>Trying to delete? <?= $fruit['fruit_name']?>?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" name="deleteFruit" class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE MODAL -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="create">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Fruit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                {% block createModal %}
+                <form method="POST" action="{% url 'create_fruit' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="" class="form-label">Fruit Name</label>
+                            {{ form.fruit_name }}
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <label for="" class="form-label">Quantity</label>
+                            {{ form.fruit_qty }}
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" name="createFruit" id="createFruit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+                {% endblock createModal %}
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE MODAL -->
+
+</body>
+</html>
