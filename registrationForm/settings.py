@@ -52,6 +52,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'registrationForm.urls'
+LOGIN_URL = "/login/"
 
 TEMPLATES = [
     {
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
