@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import NumberInput, TextInput, PasswordInput
+from django.forms import NumberInput, TextInput, PasswordInput, EmailInput
 from django.core.exceptions import ValidationError
 from . import models
 
@@ -14,7 +14,7 @@ class AuthenticationForm(forms.ModelForm):
 
     class Meta:
         model = models.User
-        fields = ["username","password"]
+        fields = ["username","password", "name", "email"]
         widgets = {
                 "username": TextInput(attrs={"class":"form-control",
                                              "id":"username",
@@ -24,17 +24,25 @@ class AuthenticationForm(forms.ModelForm):
                                              "id":"password",
                                              "name":"password",
                                              "required": True,}),
+                "name": TextInput(attrs={"class":"form-control",
+                                             "id":"name",
+                                             "name":"name",
+                                             "required": True,}),
+                "email": EmailInput(attrs={"class":"form-control",
+                                             "id":"email",
+                                             "name":"email",
+                                             "required": True,}),
         }
     
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        confirm_password = cleaned_data.get("confirm_password")
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     password = cleaned_data.get("password")
+    #     confirm_password = cleaned_data.get("confirm_password")
 
-        if password is not confirm_password:
-            raise ValidationError("Password do not match")
+    #     if password is not confirm_password:
+    #         raise ValidationError("Password do not match")
         
-        return cleaned_data
+    #     return cleaned_data
 
 
 

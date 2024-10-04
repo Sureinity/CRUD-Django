@@ -4,8 +4,6 @@ from django.contrib import messages
 
 from .forms import FruitForm, SearchForm, AuthenticationForm
 from .models import Fruits, User
-
-import datetime
 # Create your views here.
 
 #-----------------------------------#TODO: Work with "Create Account view"----------------------------------------------#
@@ -15,6 +13,13 @@ import datetime
 ##########################################
 def login(request):
     form = AuthenticationForm()
+    if request.method == "POST":
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        print(username)
+        print(password)
+        return redirect("list_fruit")
+        
     context = {
         "form":form,
     }
@@ -26,17 +31,15 @@ def create_account(request):
     if request.method == "POST":
         form = AuthenticationForm(request.POST)
         if form.is_valid():
+            form.save()
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
 
-            user = User.objects.create_user(username=username, password=password, role="user")
-            form.save()
             print(username)
             print(password)
-            print(user)
             return redirect("login")
         
-    return render(request,"createAccount.html")
+    return render(request,"createAccount.html", {"form":form})
 
 
 def change_password(request):
@@ -81,31 +84,14 @@ def list_search(request):
 #----------------------------------------------------------  
 
 def create_fruit(request):
-    message = "Fruit Created!"
     if request.method == "POST":
         form = FruitForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             messages.success(request, "Fruit successfully created!")
             form.save()
-
-      #TODO: Perform basic arithmetic when existing fruit name is created.
-
-      # name = request.POST.get("fruit_name")
-      #  quantity = int(request.POST.get("fruit_qty"))
-
-      #  fruitName, created = Fruits.objects.get_or_create(fruit_name=name)
-
-      #  if form.is_valid():
-      #      if not created:
-      #          fruitName.quantity += quantity
-      #          form.save()
-      #      else:
-      #          fruitName.quantity = quantity
-      #          form.save()
-
             return redirect("list_fruit")
     else:
-        form = CreateForm()
+        form = FruitForm()
     
     #Database objects
     outputData = Fruits.objects.all()
