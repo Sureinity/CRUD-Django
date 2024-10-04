@@ -8,13 +8,13 @@ from .models import Fruits, User
 import datetime
 # Create your views here.
 
+#-----------------------------------#TODO: Work with "Create Account view"----------------------------------------------#
 
 ##########################################
 #             AUTHENTICATION             #
 ##########################################
 def login(request):
     form = AuthenticationForm()
-
     context = {
         "form":form,
     }
@@ -23,13 +23,32 @@ def login(request):
 def create_account(request):
     form = AuthenticationForm()
 
-    context = {
-        "form":form,
-    }
-    return render(request, "createAccount.html")
+    if request.method == "POST":
+        form = AuthenticationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+
+            user = User.objects.create_user(username=username, password=password, role="user")
+            form.save()
+            print(username)
+            print(password)
+            print(user)
+            return redirect("login")
+        
+    return render(request,"createAccount.html")
+
 
 def change_password(request):
-    return render(request, "changePassword.html")
+    form = AuthenticationForm()
+
+    if request.method == "POST":
+        form = AuthenticationForm(request.method)
+
+    context = {
+        "form": form
+    }
+    return render(request, "changePassword.html", context)
 
 
 ##########################################
@@ -47,7 +66,6 @@ def list_search(request):
     #Search function
     if request.method == "GET":
         searchForm = SearchForm(request.GET)
-        print(request.get_port())
         if searchForm.is_valid():
             query = searchForm.cleaned_data["query"]
             fruits = Fruits.objects.filter(fruit_name__icontains=query)

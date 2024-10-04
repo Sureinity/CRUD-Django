@@ -5,7 +5,7 @@ urlpatterns = [
     #Login
     path("", views.login, name="login"),
     path("createAccount/", views.create_account, name="create_account"),
-    path("changePassword/", views., name="change_password"),
+    path("changePassword/", views.change_password, name="change_password"),
 
 
     #Fruits CRUD

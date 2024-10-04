@@ -1,8 +1,17 @@
 from django import forms
 from django.forms import NumberInput, TextInput, PasswordInput
+from django.core.exceptions import ValidationError
 from . import models
 
+##########################################
+#             AUTHENTICATION             #
+##########################################
 class AuthenticationForm(forms.ModelForm):
+    confirm_password = forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
+                                             "id":"change_password",
+                                             "name":"change_password",
+                                             "required": True,}))
+
     class Meta:
         model = models.User
         fields = ["username","password"]
@@ -16,6 +25,16 @@ class AuthenticationForm(forms.ModelForm):
                                              "name":"password",
                                              "required": True,}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password is not confirm_password:
+            raise ValidationError("Password do not match")
+        
+        return cleaned_data
 
 
 
