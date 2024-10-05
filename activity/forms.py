@@ -6,12 +6,23 @@ from . import models
 ##########################################
 #             AUTHENTICATION             #
 ##########################################
-class AuthenticationForm(forms.ModelForm):
+class AuthenticationForm(forms.Form):
+    username =  forms.CharField(widget=TextInput(attrs={"class":"form-control",
+                                             "id":"username",
+                                             "name":"username",
+                                             "required": True,}))
+    password =  forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
+                                             "id":"password",
+                                             "name":"password",
+                                             "required": True,}))
+
+    
+
+class CreateAccount_ChangePasword_Form(forms.ModelForm):
     confirm_password = forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
                                              "id":"change_password",
                                              "name":"change_password",
                                              "required": True,}))
-
     class Meta:
         model = models.User
         fields = ["username","password", "name", "email"]
@@ -33,7 +44,7 @@ class AuthenticationForm(forms.ModelForm):
                                              "name":"email",
                                              "required": True,}),
         }
-    
+
     # def clean(self):
     #     cleaned_data = super().clean()
     #     password = cleaned_data.get("password")
@@ -43,9 +54,6 @@ class AuthenticationForm(forms.ModelForm):
     #         raise ValidationError("Password do not match")
         
     #     return cleaned_data
-
-
-
 
 
 class FruitForm(forms.ModelForm):
