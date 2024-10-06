@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from .decorators import authenticated_or_login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
@@ -6,27 +6,28 @@ from .forms import FruitForm, SearchForm, AuthenticationForm, CreateAccount_Chan
 from .models import Fruits, User
 # Create your views here.
 
-#-----------------------------------#TODO: Work with "Login Account view"----------------------------------------------#
+#-----------------------------------#TODO: Work with "Session Management: ALMOST DONE"----------------------------------------------#
+#TODO: @authenticated_or_login still need configuration. User can still redirect to login page with [ALT + <-]
 
 ##########################################
 #             AUTHENTICATION             #
 ##########################################
+@authenticated_or_login
 def login(request):
-    request.session.flush()
+    request.session.flush() # *DEBUG* Flush sessions when directed to Login URL
     form = AuthenticationForm()
 
     if request.method == "POST":
-        form = AuthenticationForm(request.POST)
+        form = AuthenticationForm(request.POST) # Populate form with value from request.POST
         if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
+            username = form.cleaned_data["username"] # Fetch cleaned data/value from populated form
+            password = form.cleaned_data["password"] #
 
             user = User.objects.get(username=username)
-            if user.password == password:
-                request.session["id"] = user.id
-                request.session["role"] = user.role
-                print(request.session["role"])
-                messages.success(request, "Login Successful!")  
+            if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
+                request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
+                request.session["role"] = user.role #
+                messages.success(request, "Login Successful!") 
                 return redirect("list_fruit")
         else:
             print(form.errors)
@@ -65,6 +66,7 @@ def change_password(request):
 ##########################################
 #               FRUITS CRUD              #
 ##########################################
+
 
 def list_search(request):
     #Forms to render on initial load

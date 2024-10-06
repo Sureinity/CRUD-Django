@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import NumberInput, TextInput, PasswordInput, EmailInput
 from django.core.exceptions import ValidationError
-from . import models
+from .models import User, Fruits
 
 ##########################################
 #             AUTHENTICATION             #
@@ -15,6 +15,13 @@ class AuthenticationForm(forms.Form):
                                              "id":"password",
                                              "name":"password",
                                              "required": True,}))
+    
+    def is_authenticated(self, username, password):
+        try:
+            if User.objects.get(username=username) and User.objects.get(password=password):
+                return True
+        except User.DoesNotExist:
+            print("Object does not exist")
 
     
 
@@ -24,7 +31,7 @@ class CreateAccount_ChangePasword_Form(forms.ModelForm):
                                              "name":"change_password",
                                              "required": True,}))
     class Meta:
-        model = models.User
+        model = User
         fields = ["username","password", "name", "email"]
         widgets = {
                 "username": TextInput(attrs={"class":"form-control",
@@ -58,7 +65,7 @@ class CreateAccount_ChangePasword_Form(forms.ModelForm):
 
 class FruitForm(forms.ModelForm):
     class Meta:
-        model = models.Fruits
+        model = Fruits
         fields = "__all__"
         widgets = {
                 "fruit_name": TextInput(attrs={"class": "form-control",
