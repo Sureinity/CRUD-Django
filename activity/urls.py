@@ -2,10 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    #Login
+    #Authentication System
     path("", views.login, name="login"),
     path("createAccount/", views.create_account, name="create_account"),
     path("changePassword/", views.change_password, name="change_password"),
+    path("logout/", views.logout, name="logout"),
 
 
     #Fruits CRUD

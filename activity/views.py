@@ -1,4 +1,5 @@
-from .decorators import authenticated_or_login
+from .decorators import check_session_or_redirect, session_expiration_or_redirect
+from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
@@ -7,12 +8,15 @@ from .models import Fruits, User
 # Create your views here.
 
 #-----------------------------------#TODO: Work with "Session Management: ALMOST DONE"----------------------------------------------#
-#TODO: @authenticated_or_login still need configuration. User can still redirect to login page with [ALT + <-]
+#TODO: @authenticated_or_login still need configuration. User can still redirect to login page with [ALT + <-]: DONE
+#TODO: When user performs CRUD operations on expired session and logs in back, CRUD are still executed afterwards: NOT YET ADDRESSED
 
 ##########################################
 #             AUTHENTICATION             #
 ##########################################
-@authenticated_or_login
+
+@never_cache # URL 'login' will never be cached; user will not be directed to that page if it using browser's navigation [ALT + left|right arrow keys]
+@check_session_or_redirect
 def login(request):
     request.session.flush() # *DEBUG* Flush sessions when directed to Login URL
     form = AuthenticationForm()
@@ -34,6 +38,9 @@ def login(request):
         
     return render(request,"login.html", {"form": form})
 
+def logout(request):
+    return redirect("list_fruit")
+
 def create_account(request):
     form = CreateAccount_ChangePasword_Form()
 
@@ -50,7 +57,6 @@ def create_account(request):
         
     return render(request,"createAccount.html", {"form":form})
 
-
 def change_password(request):
     form = CreateAccount_ChangePasword_Form()
 
@@ -66,10 +72,8 @@ def change_password(request):
 ##########################################
 #               FRUITS CRUD              #
 ##########################################
-
-
+@session_expiration_or_redirect
 def list_search(request):
-    #Forms to render on initial load
     fruitForm = FruitForm()
     searchForm = SearchForm()
     

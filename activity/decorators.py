@@ -1,28 +1,17 @@
 # from functools import wraps
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
-# def authenticated_or_login(view_func):
-#     # @wraps(view_func)
-#     def _wrapped_view(request):
-#         if request.session.get("id"):  # Check if the user is logged in
-#             return redirect("list_fruit")  # Redirect to the fruits page
-#         return view_func(request)
-        
-#     return _wrapped_view
-
-# def authenticated_or_login(func):
-#     def wrapper(request):
-#         if request.session.get("id"):
-#             return redirect("list_fruit")
-#         else:
-#             return func(request)
-
-#     return wrapper
-
-def authenticated_or_login(view_func):
+def check_session_or_redirect(view_func):
     def wrapper(request):
         if request.session.get("id"):
             return redirect("list_fruit")
-        else:
-            return view_func(request)
+        return view_func(request)
+    return wrapper
+
+def session_expiration_or_redirect(view_func):
+    def wrapper(request):
+        if not request.session.get("id"):
+            # Delete or flush the request.POST before it goes to session_expired.html: NOT YET IMPLEMENTED
+            return render(request, "session_expired.html")
+        return view_func(request)
     return wrapper
