@@ -10,6 +10,7 @@ from .models import Fruits, User
 #-----------------------------------#TODO: Work with "Session Management: ALMOST DONE"----------------------------------------------#
 #TODO: @authenticated_or_login still need configuration. User can still redirect to login page with [ALT + <-]: DONE
 #TODO: When user performs CRUD operations on expired session and logs in back, CRUD are still executed afterwards: NOT YET ADDRESSED
+#TODO: Work with logout
 
 ##########################################
 #             AUTHENTICATION             #
@@ -41,6 +42,7 @@ def login(request):
 def logout(request):
     return redirect("list_fruit")
 
+@check_session_or_redirect
 def create_account(request):
     form = CreateAccount_ChangePasword_Form()
 
@@ -57,6 +59,7 @@ def create_account(request):
         
     return render(request,"createAccount.html", {"form":form})
 
+@check_session_or_redirect
 def change_password(request):
     form = CreateAccount_ChangePasword_Form()
 
@@ -73,7 +76,7 @@ def change_password(request):
 #               FRUITS CRUD              #
 ##########################################
 @session_expiration_or_redirect
-def list_search(request):
+def list_search(request):    
     fruitForm = FruitForm()
     searchForm = SearchForm()
     
@@ -95,9 +98,11 @@ def list_search(request):
     
     return render(request, "index.html", context)
 
-#----------------------------------------------------------  
-
+#----------------------------------------------------------
+@session_expiration_or_redirect
 def create_fruit(request):
+    if not request.session.get("id"):
+        return render(request, "session_expired.html")
     if request.method == "POST":
         form = FruitForm(request.POST)
         if form.is_valid():
@@ -112,8 +117,11 @@ def create_fruit(request):
     return redirect("list_fruit")
 
 #----------------------------------------------------------
-
+@session_expiration_or_redirect
 def delete_fruit(request, fruit_id):
+    if not request.session.get("id"):
+        return render(request, "session_expired.html")
+
     fruit = get_object_or_404(Fruits, id=fruit_id)
 
     if request.method == "POST":
@@ -125,8 +133,10 @@ def delete_fruit(request, fruit_id):
     return redirect("list_fruit")
 
 #----------------------------------------------------------
-
+@session_expiration_or_redirect
 def edit_fruit(request, fruit_id):
+    if not request.session.get("id"):
+        return render(request, "session_expired.html")
     fruit = get_object_or_404(Fruits, id=fruit_id)
 
     if request.method == "POST":

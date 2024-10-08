@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 #Session Configuration
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_CLOSE = True
-SESSION_COOKIE_AGE = 10 #5 Minutes
+SESSION_COOKIE_AGE = 10 #5 Minutes (Changed to 10 seconds: DEBUG)
 
 
 # Application definition
