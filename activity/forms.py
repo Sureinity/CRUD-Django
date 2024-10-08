@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth import authenticate
 from django.forms import NumberInput, TextInput, PasswordInput, EmailInput
 from django.core.exceptions import ValidationError
 from .models import User, Fruits
@@ -16,11 +17,13 @@ class AuthenticationForm(forms.Form):
                                              "name":"password",
                                              "required": True,}))
     
-    def is_authenticated(self, id, username, password):
+    def is_authenticated(self, username, password):
         try:
-            if User.objects.get(id=id) and User.objects.get(username=username) and User.objects.get(password=password):
+            user = User.objects.get(username=username)
+
+            if user.username == username and user.password == password:
                 return True
-        except User.DoesNotExist:
+        except:
             print("Object does not exist")
 
     
@@ -29,7 +32,8 @@ class CreateAccount_ChangePasword_Form(forms.ModelForm):
     confirm_password = forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
                                              "id":"change_password",
                                              "name":"change_password",
-                                             "required": True,}))
+                                             "required": True,
+                                             "placeholder": "Confirm password",}))
     class Meta:
         model = User
         fields = ["username","password", "name", "email"]

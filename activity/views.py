@@ -21,7 +21,6 @@ from .models import Fruits, User
 @never_cache # URL 'login' will never be cached; user will not be directed to that page if it using browser's navigation [ALT + left|right arrow keys]
 @check_session_or_redirect
 def login(request):
-    request.session.flush() # *DEBUG* Flush sessions when directed to Login URL
     form = AuthenticationForm()
 
     if request.method == "POST":
@@ -31,9 +30,11 @@ def login(request):
             password = form.cleaned_data["password"] #
 
             user = User.objects.get(username=username)
-            if form.is_authenticated(user.id, username, password): # Method from forms.AuthenticationForm
+    
+            if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
                 request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
                 request.session["role"] = user.role #
+                
                 if request.session["role"] == "1":
                     return redirect("admin")
                 messages.success(request, "Login Successful!") 
@@ -46,11 +47,16 @@ def login(request):
 def logout(request):
     return redirect("list_fruit")
 
+@never_cache
+def session_expired(request):
+    return render(request, "session_expired.html")
+
 
 
 ##########################################
 #               FRUITS CRUD              #
 ##########################################
+@never_cache
 @session_expiration_or_redirect
 def list_search(request):    
     fruitForm = FruitForm()
@@ -128,7 +134,8 @@ def edit_fruit(request, fruit_id):
 ##########################################
 #                 ADMIN                  #
 ##########################################
-
+@never_cache
+@session_expiration_or_redirect
 def admin(request):
     form = CreateAccount_ChangePasword_Form()
 
@@ -140,6 +147,8 @@ def admin(request):
         "userList": User.objects.all(),
         "form": form,
     }
+
+    print(request.session.get("id"))
 
     return render(request, "admin.html", context)
 

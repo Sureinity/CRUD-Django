@@ -1,0 +1,29 @@
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
+from django.core.exceptions import ObjectDoesNotExist
+
+def manual_authenticate(username, password):
+    try:
+        # Retrieve the user by username
+        user = User.objects.get(username=username)
+        
+        # Check if the provided password matches the stored password
+        if check_password(password, user.password):
+            return user  # Return the user object if authentication is successful
+        else:
+            return None  # Invalid password
+    except ObjectDoesNotExist:
+        return None  # User does not exist
+
+# Usage example
+username = 'myusername'
+password = 'mypassword'
+user = manual_authenticate(username, password)
+
+if user:
+    # Authentication successful
+    print("User authenticated:", user)
+else:
+    # Authentication failed
+    print("Invalid username or password.")
+

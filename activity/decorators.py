@@ -1,9 +1,10 @@
 # from functools import wraps
 from django.shortcuts import redirect, render
+from django.contrib import messages
 
 def check_session_or_redirect(view_func):
     def wrapper(request):
-        if request.session.get("id"):
+        if request.session.get("id") and request.session["role"] == "2":
             return redirect("list_fruit")
         return view_func(request)
     return wrapper
@@ -13,7 +14,9 @@ def check_session_or_redirect(view_func):
 def session_expiration_or_redirect(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.session.get("id"):
-            # Delete or flush the request.POST before it goes to session_expired.html so that user CRUD Operation will not be executed afterwards: NOT YET IMPLEMENTED 
-            return render(request, "session_expired.html")
+            messages.warning(request, "Your session has expired. Please log in again.")
+            return redirect("login")
+        elif request.session["role"] == "1":
+            pass
         return view_func(request, *args, **kwargs)
     return wrapper
