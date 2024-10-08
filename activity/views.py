@@ -10,7 +10,9 @@ from .models import Fruits, User
 #-----------------------------------#TODO: Work with "Session Management: ALMOST DONE"----------------------------------------------#
 #TODO: @authenticated_or_login still need configuration. User can still redirect to login page with [ALT + <-]: DONE
 #TODO: When user performs CRUD operations on expired session and logs in back, CRUD are still executed afterwards: NOT YET ADDRESSED
-#TODO: Work with logout
+#TODO: Work with admin and logout
+
+#ADMIN CREATE ACCOUNT shell: User.objects.insert(username=admin, name=admin, email="", password="qwe", role="1") 
 
 ##########################################
 #             AUTHENTICATION             #
@@ -32,6 +34,8 @@ def login(request):
             if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
                 request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
                 request.session["role"] = user.role #
+                if request.session["role"] == "1":
+                    return redirect("admin")
                 messages.success(request, "Login Successful!") 
                 return redirect("list_fruit")
         else:
@@ -42,34 +46,6 @@ def login(request):
 def logout(request):
     return redirect("list_fruit")
 
-@check_session_or_redirect
-def create_account(request):
-    form = CreateAccount_ChangePasword_Form()
-
-    if request.method == "POST":
-        form = CreateAccount_ChangePasword_Form(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-
-            print(username)
-            print(password)
-            return redirect("login")
-        
-    return render(request,"createAccount.html", {"form":form})
-
-@check_session_or_redirect
-def change_password(request):
-    form = CreateAccount_ChangePasword_Form()
-
-    if request.method == "POST":
-        form = CreateAccount_ChangePasword_Form(request.POST)
-
-    context = {
-        "form": form
-    }
-    return render(request, "changePassword.html", context)
 
 
 ##########################################
@@ -95,7 +71,7 @@ def list_search(request):
         "output": fruits,
         "form": fruitForm,
     }
-    
+    print(request.session.get("role"))
     return render(request, "index.html", context)
 
 #----------------------------------------------------------
@@ -148,3 +124,39 @@ def edit_fruit(request, fruit_id):
         messages.error(request, "Update error!")
     
     return redirect('list_fruit')
+
+##########################################
+#                 ADMIN                  #
+##########################################
+
+def admin(request):
+    return render(request, "admin.html")
+
+@check_session_or_redirect
+def create_account(request):
+    form = CreateAccount_ChangePasword_Form()
+
+    if request.method == "POST":
+        form = CreateAccount_ChangePasword_Form(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+
+            print(username)
+            print(password)
+            return redirect("login")
+        
+    return render(request,"createAccount.html", {"form":form})
+
+@check_session_or_redirect
+def change_password(request):
+    form = CreateAccount_ChangePasword_Form()
+
+    if request.method == "POST":
+        form = CreateAccount_ChangePasword_Form(request.POST)
+
+    context = {
+        "form": form
+    }
+    return render(request, "changePassword.html", context)

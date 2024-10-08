@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +22,31 @@
 </head>
 
 <body class="bg-dark">
+     <!-- Navbar -->
+     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'list_fruit' %}">Fruit Database</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'list_fruit' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Fruits</a>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                            Logout
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div class="container">
         <div class="row mt-5">
             <div class="col-lg-12">
@@ -40,7 +64,7 @@
                         <form method="get" action="{% url 'search_query' %}">
                             {% csrf_token %}
                             <div class="form-group">
-                                {{searchForm.query}}
+                                {{ searchForm.query }}
                             </div>
                         </form>
 
@@ -53,89 +77,94 @@
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Registered</th>
                                         <th class="text-center">Updated</th>
-                                        <th class="text-center">Edit</th>
-                                        <th class="text-center">Delete</th>
+                                        {% if request.session.role == '1' or request.session.role == '2' %}
+                                            <th class="text-center">Edit</th>
+                                            <th class="text-center">Delete</th>
+                                        {%else%}
+
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <!-- SHOW FRUITS DATA -->
-								{% if output %}
-                                    {% for data in output %}
-                                    <tr>
-                                        <td class="text-center">{{ data.id }}</td>
-                                        <td class="text-center">{{ data.fruit_name }}</td>
-                                        {% if data.fruit_qty == 1%}
-                                        <td class="text-center">{{ data.fruit_qty }} pc(s)</td>
-                                        {% else %}
-                                        <td class="text-center">{{ data.fruit_qty }} pc(s)</td>
-                                        {% endif %}
-                                        <td class="text-center">{{ data.fruit_created|date:"M d, Y g:i A" }}</td>
-                                        <td class="text-center">{{ data.fruit_updated|date:"M d, Y g:i A" }}</td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editModal{{data.id}}" name="{{ data.fruit_name }}">Edit</button>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{data.id}}" name="{{ data.fruit_name }}">Delete</button>
-                                        </td>
-                                    </tr>
+                                    {% if output %}
+                                        {% for data in output %}
+                                            <tr>
+                                                <td class="text-center">{{ data.id }}</td>
+                                                <td class="text-center">{{ data.fruit_name }}</td>
+                                                <td class="text-center">{{ data.fruit_qty }} pc(s)</td>
+                                                <td class="text-center">{{ data.fruit_created|date:"M d, Y g:i A" }}</td>
+                                                <td class="text-center">{{ data.fruit_updated|date:"M d, Y g:i A" }}</td>
+                                                    {% if request.session.role == '1' or request.session.role == '2' %}
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editModal{{ data.id }}" name="{{ data.fruit_name }}">Edit</button>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ data.id }}" name="{{ data.fruit_name }}">Delete</button>
+                                                        </td>
+                                                        {%else%}
+                                                        
+                                                    {% endif %}
+                                                        
+                                            </tr>
+                                            <!-- DELETE MODAL -->
+                                            <div class="modal fade" tabindex="-1" role="dialog" id="deleteModal{{ data.id }}">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Delete Fruit - {{ data.fruit_name }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <form method="POST" action="{% url 'delete_fruit' data.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <p>Trying to delete? </p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                <button type="submit" name="deleteFruit" class="btn btn-danger">Delete</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    <!-- DELETE MODAL -->
-                                    <div class="modal fade" tabindex="-1" role="dialog" id="deleteModal{{data.id}}">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Delete Fruit - {{data.fruit_name}}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form method="POST" action="{% url 'delete_fruit' data.id %}">
-                                                    {% csrf_token %}
-                                                    <div class="modal-body">
-                                                        <p>Trying to delete? </p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        <button type="submit" name="deleteFruit" class="btn btn-danger">Delete</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- EDIT Modal -->
-                                    <div class="modal fade" tabindex="-1" role="dialog" id="editModal{{data.id}}">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Edit Fruit - {{data.fruit_name}}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form action="{% url 'edit_fruit' data.id %}" method="POST">
-                                                    {% csrf_token %}
-                                                    <div class="modal-body">
-                                                        <label for="" class="form-label">Fruit Name</label>
-                                                        <div class="form-group">
-                                                            {{form.fruit_name}}
+                                            <!-- EDIT Modal -->
+                                            <div class="modal fade" tabindex="-1" role="dialog" id="editModal{{ data.id }}">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Fruit - {{ data.fruit_name }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <br>
-                                                        <label for="" class="form-label">Fruit Quantity</label>
-                                                        <div class="form-group">
-                                                            {{form.fruit_qty}}
-                                                        </div>
+                                                        <form action="{% url 'edit_fruit' data.id %}" method="POST">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <label for="" class="form-label">Fruit Name</label>
+                                                                <div class="form-group">
+                                                                    {{ form.fruit_name }}
+                                                                </div>
+                                                                <br>
+                                                                <label for="" class="form-label">Fruit Quantity</label>
+                                                                <div class="form-group">
+                                                                    {{ form.fruit_qty }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                <button type="submit" name="updateFruit" class="btn btn-primary">Update</button>
+                                                            </div>
+                                                        </form>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        <button type="submit" name="updateFruit" class="btn btn-primary">Update</button>
-                                                    </div>
-                                                </form>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                    {% else%}
-                                    <tr>
-                                        <td colspan="7" class="text-center">No data exists...</td>
-                                    </tr>
-                                {% endif%}
-								</tbody>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">No data exists...</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -143,7 +172,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- CREATE MODAL -->
     {% block createModal %}
@@ -157,7 +185,7 @@
                 <form method="POST" action="{% url 'create_fruit' %}">
                     {% csrf_token %}
                     <div class="modal-body">
-                        <div class="faorm-group">
+                        <div class="form-group">
                             <label for="" class="form-label">Fruit Name</label>
                             {{ form.fruit_name }}
                         </div>

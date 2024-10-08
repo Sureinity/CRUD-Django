@@ -10,6 +10,7 @@ urlpatterns = [
 
 
     #Fruits CRUD
+    path("admin/", views.admin, name="admin"),
     path("fruits/", views.list_search, name="list_fruit"),
     path("fruits/searchFruit/", views.list_search, name="search_query"),
     path("createFruit/", views.create_fruit, name="create_fruit"),

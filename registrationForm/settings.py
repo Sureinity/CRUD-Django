@@ -36,7 +36,6 @@ SESSION_COOKIE_AGE = 10 #5 Minutes (Changed to 10 seconds: DEBUG)
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
