@@ -4,13 +4,13 @@ from . import views
 urlpatterns = [
     #Authentication System
     path("", views.login, name="login"),
-    path("createAccount/", views.create_account, name="create_account"),
+    path("admin/", views.admin, name="admin"),
+    path("admin/createAccount/", views.create_account, name="create_account"),
     path("changePassword/", views.change_password, name="change_password"),
     path("logout/", views.logout, name="logout"),
 
 
     #Fruits CRUD
-    path("admin/", views.admin, name="admin"),
     path("fruits/", views.list_search, name="list_fruit"),
     path("fruits/searchFruit/", views.list_search, name="search_query"),
     path("createFruit/", views.create_fruit, name="create_fruit"),

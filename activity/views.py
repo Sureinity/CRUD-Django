@@ -31,7 +31,7 @@ def login(request):
             password = form.cleaned_data["password"] #
 
             user = User.objects.get(username=username)
-            if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
+            if form.is_authenticated(user.id, username, password): # Method from forms.AuthenticationForm
                 request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
                 request.session["role"] = user.role #
                 if request.session["role"] == "1":
@@ -130,26 +130,37 @@ def edit_fruit(request, fruit_id):
 ##########################################
 
 def admin(request):
-    return render(request, "admin.html")
-
-@check_session_or_redirect
-def create_account(request):
     form = CreateAccount_ChangePasword_Form()
 
     if request.method == "POST":
         form = CreateAccount_ChangePasword_Form(request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
+    context = {
+        "userList": User.objects.all(),
+        "form": form,
+    }
 
-            print(username)
-            print(password)
-            return redirect("login")
-        
-    return render(request,"createAccount.html", {"form":form})
+    return render(request, "admin.html", context)
 
-@check_session_or_redirect
+
+
+def create_account(request):
+    if request.method == "POST":
+        form = CreateAccount_ChangePasword_Form(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("admin")
+    else:
+        form = form = CreateAccount_ChangePasword_Form()
+
+    print(form.errors)
+    return render(request, "admin.html", {
+        "userList": User.objects.all(),
+        "form": form,  # Ensure form is passed back
+    })
+
+
 def change_password(request):
     form = CreateAccount_ChangePasword_Form()
 

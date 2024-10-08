@@ -16,9 +16,9 @@ class AuthenticationForm(forms.Form):
                                              "name":"password",
                                              "required": True,}))
     
-    def is_authenticated(self, username, password):
+    def is_authenticated(self, id, username, password):
         try:
-            if User.objects.get(username=username) and User.objects.get(password=password):
+            if User.objects.get(id=id) and User.objects.get(username=username) and User.objects.get(password=password):
                 return True
         except User.DoesNotExist:
             print("Object does not exist")
@@ -37,19 +37,23 @@ class CreateAccount_ChangePasword_Form(forms.ModelForm):
                 "username": TextInput(attrs={"class":"form-control",
                                              "id":"username",
                                              "name":"username",
-                                             "required": True,}),
+                                             "required": True,
+                                             "placeholder": "Enter username",}),
                 "password": PasswordInput(attrs={"class":"form-control",
                                              "id":"password",
                                              "name":"password",
-                                             "required": True,}),
+                                             "required": True,
+                                             "placeholder": "Enter password",}),
                 "name": TextInput(attrs={"class":"form-control",
                                              "id":"name",
                                              "name":"name",
-                                             "required": True,}),
+                                             "required": True,
+                                             "placeholder": "Enter name",}),
                 "email": EmailInput(attrs={"class":"form-control",
                                              "id":"email",
                                              "name":"email",
-                                             "required": True,}),
+                                             "required": True,
+                                             "placeholder": "Enter username",}),
         }
 
     # def clean(self):
