@@ -1,3 +1,6 @@
+import random
+
+from django.db.models import F
 from .decorators import check_session_or_redirect, session_expiration_or_redirect
 from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect, get_object_or_404
@@ -35,11 +38,16 @@ def login(request):
             if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
                 request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
                 request.session["role"] = user.role 
-                request.session.set_expiry(10)      # Session expiry: Temporarily disabled Cookie Age on settings.py
+                request.session.set_expiry(60)      # Session expiry: Temporarily disabled Cookie Age on settings.py
                 
                 if request.session["role"] == "1":
                     return redirect("admin")
-                messages.success(request, "Login Successful!") 
+                
+                welcomeMessages = [
+                    f"Hello there, {user.name}!",
+                    f"Good evening, {user.name}!"
+                ]
+                messages.success(request, random.choice(welcomeMessages))
                 return redirect("list_fruit")
         else:
             print(form.errors)
@@ -92,15 +100,24 @@ def create_fruit(request):
     if request.method == "POST":
         form = FruitForm(request.POST)
         if form.is_valid():
-            messages.success(request, "Fruit successfully created!")
-            form.save()
+            fruit_name = form.cleaned_data['fruit_name']  
+            quantity = form.cleaned_data['fruit_qty']  
+
+            existing_fruit = Fruits.objects.filter(fruit_name=fruit_name).first() # Check if a fruit with the same name already exists
+            if existing_fruit: # This is an object returned from the filter query
+                existing_fruit.fruit_qty = F('fruit_qty') + quantity  # Use F expressions to avoid race conditions
+                existing_fruit.save()
+                messages.success(request, f"{quantity} added to existing fruit: {fruit_name}!")
+            else:
+                # If fruit does not exist, save the new fruit
+                form.save()
+                messages.success(request, "Fruit successfully created!")
+            
             return redirect("list_fruit")
     else:
         form = FruitForm()
-    
-    #Database objects
-    outputData = Fruits.objects.all()
-    return redirect("list_fruit")
+
+    return render(request, "create_fruit.html", {"form": form})
 
 #----------------------------------------------------------
 @session_expiration_or_redirect
