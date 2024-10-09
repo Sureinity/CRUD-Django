@@ -1,6 +1,6 @@
 # from functools import wraps
 from django.shortcuts import redirect, render
-from django.contrib import messages
+
 
 def check_session_or_redirect(view_func):
     def wrapper(request):
@@ -14,7 +14,6 @@ def check_session_or_redirect(view_func):
 def session_expiration_or_redirect(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.session.get("id"):
-            messages.warning(request, "Your session has expired. Please log in again.")
             return redirect("login")
         elif request.session["role"] == "1":
             pass

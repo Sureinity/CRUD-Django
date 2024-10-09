@@ -9,8 +9,9 @@ from .models import Fruits, User
 
 #-----------------------------------#TODO: Work with "Session Management: ALMOST DONE"----------------------------------------------#
 #TODO: @authenticated_or_login still need configuration. User can still redirect to login page with [ALT + <-]: DONE
-#TODO: When user performs CRUD operations on expired session and logs in back, CRUD are still executed afterwards: NOT YET ADDRESSED
+#TODO: When user performs CRUD operations on expired session and logs in back, CRUD are still executed afterwards: DONE
 #TODO: Work with admin and logout
+#TODO: Handling incorrect username or password 
 
 #ADMIN CREATE ACCOUNT shell: User.objects.insert(username=admin, name=admin, email="", password="qwe", role="1") 
 
@@ -27,13 +28,14 @@ def login(request):
         form = AuthenticationForm(request.POST) # Populate form with value from request.POST
         if form.is_valid():
             username = form.cleaned_data["username"] # Fetch cleaned data/value from populated form
-            password = form.cleaned_data["password"] #
+            password = form.cleaned_data["password"] 
 
             user = User.objects.get(username=username)
     
             if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
                 request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
-                request.session["role"] = user.role #
+                request.session["role"] = user.role 
+                request.session.set_expiry(10)      # Session expiry: Temporarily disabled Cookie Age on settings.py
                 
                 if request.session["role"] == "1":
                     return redirect("admin")
@@ -45,7 +47,10 @@ def login(request):
     return render(request,"login.html", {"form": form})
 
 def logout(request):
-    return redirect("list_fruit")
+    if request.method == "POST":
+        request.session.flush()
+    
+    return redirect("login")
 
 @never_cache
 def session_expired(request):
@@ -58,7 +63,9 @@ def session_expired(request):
 ##########################################
 @never_cache
 @session_expiration_or_redirect
-def list_search(request):    
+def list_search(request):
+    
+#   print(request.session.items())
     fruitForm = FruitForm()
     searchForm = SearchForm()
     
@@ -77,14 +84,11 @@ def list_search(request):
         "output": fruits,
         "form": fruitForm,
     }
-    print(request.session.get("role"))
     return render(request, "index.html", context)
 
 #----------------------------------------------------------
 @session_expiration_or_redirect
 def create_fruit(request):
-    if not request.session.get("id"):
-        return render(request, "session_expired.html")
     if request.method == "POST":
         form = FruitForm(request.POST)
         if form.is_valid():
@@ -101,9 +105,6 @@ def create_fruit(request):
 #----------------------------------------------------------
 @session_expiration_or_redirect
 def delete_fruit(request, fruit_id):
-    if not request.session.get("id"):
-        return render(request, "session_expired.html")
-
     fruit = get_object_or_404(Fruits, id=fruit_id)
 
     if request.method == "POST":
@@ -117,8 +118,6 @@ def delete_fruit(request, fruit_id):
 #----------------------------------------------------------
 @session_expiration_or_redirect
 def edit_fruit(request, fruit_id):
-    if not request.session.get("id"):
-        return render(request, "session_expired.html")
     fruit = get_object_or_404(Fruits, id=fruit_id)
 
     if request.method == "POST":
@@ -148,11 +147,7 @@ def admin(request):
         "form": form,
     }
 
-    print(request.session.get("id"))
-
     return render(request, "admin.html", context)
-
-
 
 def create_account(request):
     if request.method == "POST":
@@ -168,7 +163,6 @@ def create_account(request):
         "userList": User.objects.all(),
         "form": form,  # Ensure form is passed back
     })
-
 
 def change_password(request):
     form = CreateAccount_ChangePasword_Form()
