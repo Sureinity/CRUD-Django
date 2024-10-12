@@ -16,7 +16,8 @@ class User(models.Model):
     name = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=150)
     password = models.CharField(max_length=128)
-    role = models.CharField(choices=CHOICES, default=USER)
+    role = models.IntegerField(choices=CHOICES, default=USER)
+    
 
 class Fruits(models.Model):
     fruit_name = models.CharField(max_length=255, blank=True)

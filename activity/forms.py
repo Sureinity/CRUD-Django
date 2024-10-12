@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import authenticate
-from django.forms import NumberInput, TextInput, PasswordInput, EmailInput
+from django.forms import NumberInput, TextInput, PasswordInput, EmailInput, IntegerField
 from django.core.exceptions import ValidationError
 from .models import User, Fruits
 
@@ -17,7 +17,7 @@ class AuthenticationForm(forms.Form):
                                              "name":"password",
                                              "required": True,}))
     
-    def is_authenticated(self, username, password):
+    def authenticate(self, username, password):
         try:
             user = User.objects.get(username=username)
 
@@ -28,15 +28,10 @@ class AuthenticationForm(forms.Form):
 
     
 
-class CreateAccount_ChangePasword_Form(forms.ModelForm):
-    confirm_password = forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
-                                             "id":"change_password",
-                                             "name":"change_password",
-                                             "required": True,
-                                             "placeholder": "Confirm password",}))
+class EditAccount_Form(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["username","password", "name", "email"]
+        fields = "__all__"
         widgets = {
                 "username": TextInput(attrs={"class":"form-control",
                                              "id":"username",
@@ -60,15 +55,13 @@ class CreateAccount_ChangePasword_Form(forms.ModelForm):
                                              "placeholder": "Enter username",}),
         }
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     password = cleaned_data.get("password")
-    #     confirm_password = cleaned_data.get("confirm_password")
-
-    #     if password is not confirm_password:
-    #         raise ValidationError("Password do not match")
-        
-    #     return cleaned_data
+class CreateAccount_Form(EditAccount_Form):
+    confirm_password = forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
+                                             "id":"confirm_password",
+                                             "name":"confirm_password",
+                                             "required": True,
+                                             "placeholder": "Confirm password",}))
+    
 
 
 class FruitForm(forms.ModelForm):

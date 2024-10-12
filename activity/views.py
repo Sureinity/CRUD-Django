@@ -1,4 +1,6 @@
 import random
+from django.utils import timezone
+from datetime import timedelta, datetime
 
 from django.db.models import F
 from .decorators import check_session_or_redirect, session_expiration_or_redirect
@@ -6,7 +8,7 @@ from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
-from .forms import FruitForm, SearchForm, AuthenticationForm, CreateAccount_ChangePasword_Form
+from .forms import FruitForm, SearchForm, AuthenticationForm, CreateAccount_Form, EditAccount_Form
 from .models import Fruits, User
 # Create your views here.
 
@@ -16,7 +18,7 @@ from .models import Fruits, User
 #TODO: Work with admin and logout
 #TODO: Handling incorrect username or password 
 
-#ADMIN CREATE ACCOUNT shell: User.objects.insert(username=admin, name=admin, email="", password="qwe", role="1") 
+#ADMIN CREATE ACCOUNT shell: User.objects.insert(username="admin", name="admin", email="", password="qwe", role="1") 
 
 ##########################################
 #             AUTHENTICATION             #
@@ -25,8 +27,10 @@ from .models import Fruits, User
 @never_cache # URL 'login' will never be cached; user will not be directed to that page if it using browser's navigation [ALT + left|right arrow keys]
 @check_session_or_redirect
 def login(request):
+    # var = User(username=admin, name=admin, email="", password="qwe", role="1")
+    # var.save()
     form = AuthenticationForm()
-
+    print(request.path)
     if request.method == "POST":
         form = AuthenticationForm(request.POST) # Populate form with value from request.POST
         if form.is_valid():
@@ -35,12 +39,15 @@ def login(request):
 
             user = User.objects.get(username=username)
     
-            if form.is_authenticated(username, password): # Method from forms.AuthenticationForm
+            if form.authenticate(username, password): # Method from forms.AuthenticationForm
+                request.session["username"] = user.username 
                 request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
-                request.session["role"] = user.role 
-                request.session.set_expiry(60)      # Session expiry: Temporarily disabled Cookie Age on settings.py
+                request.session["role"] = user.role
+                # request.session.set_expiry(10)      # Session expiry: Temporarily disabled Cookie Age on settings.py
+                expiry_time = timezone.now() + timedelta(seconds=request.session.get_expiry_age())
+                request.session["expiry_time"] = expiry_time.isoformat()
                 
-                if request.session["role"] == "1":
+                if request.session["role"] == 1:
                     return redirect("admin")
                 
                 welcomeMessages = [
@@ -48,6 +55,7 @@ def login(request):
                     f"Good evening, {user.name}!"
                 ]
                 messages.success(request, random.choice(welcomeMessages))
+                print(request.path)
                 return redirect("list_fruit")
         else:
             print(form.errors)
@@ -68,12 +76,11 @@ def session_expired(request):
 
 ##########################################
 #               FRUITS CRUD              #
-##########################################
+##########################################===
 @never_cache
 @session_expiration_or_redirect
-def list_search(request):
+def list_search(request): 
     
-#   print(request.session.items())
     fruitForm = FruitForm()
     searchForm = SearchForm()
     
@@ -153,10 +160,10 @@ def edit_fruit(request, fruit_id):
 @never_cache
 @session_expiration_or_redirect
 def admin(request):
-    form = CreateAccount_ChangePasword_Form()
+    form = CreateAccount_Form()
 
     if request.method == "POST":
-        form = CreateAccount_ChangePasword_Form(request.POST)
+        form = CreateAccount_Form(request.POST)
         if form.is_valid():
             form.save()
     context = {
@@ -168,7 +175,7 @@ def admin(request):
 
 def create_account(request):
     if request.method == "POST":
-        form = CreateAccount_ChangePasword_Form(request.POST)
+        form = CreateAccount_Form(request.POST)
         if form.is_valid():
             form.save()
             return redirect("admin")
@@ -180,6 +187,29 @@ def create_account(request):
         "userList": User.objects.all(),
         "form": form,  # Ensure form is passed back
     })
+
+@session_expiration_or_redirect
+def edit_account(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        form = EditAccount_Form(request.POST, instance=user)
+        if form.is_valid():
+            messages.success(request, "User successfully updated!")
+            form.save()
+    else:
+        messages.error(request, "Update error!")
+    print(form.errors)    
+    return redirect('admin')
+
+@session_expiration_or_redirect
+def delete_account(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        user.delete()
+
+    return redirect("admin")
 
 def change_password(request):
     form = CreateAccount_ChangePasword_Form()
