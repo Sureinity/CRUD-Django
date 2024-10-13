@@ -3,11 +3,11 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 
 from django.db.models import F
-from .decorators import check_session_or_redirect, session_expiration_or_redirect
 from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
+from .decorators import check_session_or_redirect, session_expiration_or_redirect, only_admin
 from .forms import FruitForm, SearchForm, AuthenticationForm, CreateAccount_Form, EditAccount_Form
 from .models import Fruits, User
 # Create your views here.
@@ -158,6 +158,7 @@ def edit_fruit(request, fruit_id):
 #                 ADMIN                  #
 ##########################################
 @never_cache
+@only_admin
 @session_expiration_or_redirect
 def admin(request):
     form = CreateAccount_Form()
@@ -167,7 +168,7 @@ def admin(request):
         if form.is_valid():
             form.save()
     context = {
-        "userList": User.objects.all(),
+        "userList": User.objects.exclude(id=1),
         "form": form,
     }
 

@@ -25,3 +25,10 @@ def session_expiration_or_redirect(view_func):
                 return redirect("login")
         return view_func(request, *args, **kwargs)
     return wrapper
+
+def only_admin(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.session.get("role") == 2:
+            return render(request, "not_authorized.html")
+        return view_func(request, *args, **kwargs)
+    return wrapper
