@@ -27,23 +27,24 @@ from .models import Fruits, User
 @never_cache # URL 'login' will never be cached; user will not be directed to that page if it using browser's navigation [ALT + left|right arrow keys]
 @check_session_or_redirect
 def login(request):
-    # var = User(username=admin, name=admin, email="", password="qwe", role="1")
-    # var.save()
     form = AuthenticationForm()
-    print(request.path)
-    if request.method == "POST":
-        form = AuthenticationForm(request.POST) # Populate form with value from request.POST
-        if form.is_valid():
-            username = form.cleaned_data["username"] # Fetch cleaned data/value from populated form
-            password = form.cleaned_data["password"] 
-
-            user = User.objects.get(username=username)
     
-            if form.authenticate(username, password): # Method from forms.AuthenticationForm
+    if request.method == "POST":
+        form = AuthenticationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                form.add_error(None, "Username or password incorrect.")  # Add error to the form
+                return render(request, "login.html", {"form": form})
+
+            if form.authenticate(username, password):
                 request.session["username"] = user.username 
-                request.session["id"] = user.id     # These statements declare session data mapped with session ID (Found in database: django_session)
+                request.session["id"] = user.id
                 request.session["role"] = user.role
-                # request.session.set_expiry(10)      # Session expiry: Temporarily disabled Cookie Age on settings.py
                 expiry_time = timezone.now() + timedelta(seconds=request.session.get_expiry_age())
                 request.session["expiry_time"] = expiry_time.isoformat()
                 
@@ -55,12 +56,13 @@ def login(request):
                     f"Good evening, {user.name}!"
                 ]
                 messages.success(request, random.choice(welcomeMessages))
-                print(request.path)
                 return redirect("list_fruit")
-        else:
-            print(form.errors)
-        
-    return render(request,"login.html", {"form": form})
+            else:
+                form.add_error(None, "Username or password incorrect.")  # Add error if authentication fails
+                return render(request, "login.html", {"form": form})
+    
+    return render(request, "login.html", {"form": form})
+
 
 def logout(request):
     if request.method == "POST":

@@ -18,13 +18,9 @@ class AuthenticationForm(forms.Form):
                                              "required": True,}))
     
     def authenticate(self, username, password):
-        try:
-            user = User.objects.get(username=username)
-
-            if user.username == username and user.password == password:
-                return True
-        except:
-            print("Object does not exist")
+        user = User.objects.get(username=username)
+        if user.username == username and user.password == password:
+            return True
 
     
 
