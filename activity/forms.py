@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms import NumberInput, TextInput, PasswordInput, EmailInput, IntegerField
+from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from .models import User, Fruits
 
@@ -19,7 +20,7 @@ class AuthenticationForm(forms.Form):
     
     def authenticate(self, username, password):
         user = User.objects.get(username=username)
-        if user.username == username and user.password == password:
+        if user.username == username and check_password(password, user.password):
             return True
 
     

@@ -6,6 +6,8 @@ from django.db.models import F
 from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.hashers import check_password
+
 
 from .decorators import check_session_or_redirect, session_expiration_or_redirect, only_admin
 from .forms import FruitForm, SearchForm, AuthenticationForm, CreateAccount_Form, EditAccount_Form
@@ -39,7 +41,12 @@ def login(request):
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 form.add_error(None, "Username or password incorrect.")  # Add error to the form
-                return render(request, "login.html", {"form": form})
+                return render(request, "login.html", {"form": form })
+
+            if check_password(password, user.password):
+                print("correct")
+            else:
+                print("wrong")
 
             if form.authenticate(username, password):
                 request.session["username"] = user.username 
