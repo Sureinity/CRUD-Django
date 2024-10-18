@@ -52,6 +52,7 @@ def login(request):
                 request.session["username"] = user.username 
                 request.session["id"] = user.id
                 request.session["role"] = user.role
+                
                 expiry_time = timezone.now() + timedelta(seconds=request.session.get_expiry_age())
                 request.session["expiry_time"] = expiry_time.isoformat()
                 
@@ -85,7 +86,7 @@ def session_expired(request):
 
 ##########################################
 #               FRUITS CRUD              #
-##########################################===
+##########################################
 @never_cache
 @session_expiration_or_redirect
 def list_search(request): 
@@ -183,6 +184,7 @@ def admin(request):
 
     return render(request, "admin.html", context)
 
+@session_expiration_or_redirect
 def create_account(request):
     if request.method == "POST":
         form = CreateAccount_Form(request.POST)
@@ -220,14 +222,3 @@ def delete_account(request, user_id):
         user.delete()
 
     return redirect("admin")
-
-def change_password(request):
-    form = CreateAccount_ChangePasword_Form()
-
-    if request.method == "POST":
-        form = CreateAccount_ChangePasword_Form(request.POST)
-
-    context = {
-        "form": form
-    }
-    return render(request, "changePassword.html", context)

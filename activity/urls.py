@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     #Authentication System
     path("", views.login, name="login"),
-    path("changePassword/", views.change_password, name="change_password"),
     path("logout/", views.logout, name="logout"),
 
     # Admin

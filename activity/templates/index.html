@@ -41,7 +41,9 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg" style="background-color: #343a40; padding: 1rem 0;">
     <div class="container-fluid">
-        <a class="navbar-brand text-light" href="{% url 'list_fruit' %}">Item Database</a>
+        <a class="navbar-brand text-light" href="{% url 'list_fruit' %}">
+		Item List {%if request.session.role == 1%}<a href="{% url 'admin' %}" class="text-light badge bg-secondary">Admin</a>{% endif %}
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -51,7 +53,7 @@
                 {% csrf_token %}
                 <div class="input-group mb-0">
                     <input type="text" class="form-control rounded-pill" placeholder="Search..." aria-label="Search" name="query">
-                    <button type="submit" class="btn btn-outline-light rounded-pill" hidden >Search</button>
+                    <button type="submit" class="btn btn-outline-light rounded-pill" hidden>Search</button>
                 </div>
             </form>
         </div>
