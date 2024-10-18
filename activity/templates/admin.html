@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -162,7 +166,7 @@
             </table>
         </div>
     </div>
-
+    <!-- CREATE ACCOUNT -->
     <h2 class="mt-5">Create User Account</h2>
     <div class="card">
         <div class="card-body">
@@ -171,22 +175,37 @@
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
                     {{ form.username }}
+		    {% if form.username.errors %}
+		    	<div class="mt-2 text-danger">{{ form.username.errors }}</div>
+		    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     {{ form.email }}
+		    {% if form.email.errors %}
+		    	<div class="mt-2 text-danger">{{ form.email.errors }}</div>
+		    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
                     {{ form.name }}
+		    {% if form.name.errors %}
+		    	<div class="mt-2 text-danger">{{ form.name.errors }}</div>
+		    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     {{ form.password }}
+		    {% if form.password.errors %}
+		    	<div class="mt-2 text-danger">{{ form.password.errors }}</div>
+		    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="confirm_password" class="form-label">Confirm Password</label>
                     {{ form.confirm_password }}
+		    {% if form.confirm_password.errors %}
+		    	<div class="mt-2 text-danger">{{ form.confirm_password.errors }}</div>
+		    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="role" class="form-label">Role</label>
@@ -230,6 +249,32 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-center", // Center the toast notifications
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    
+        {% if messages %}
+            {% for message in messages %}
+                toastr.{{ message.tags }}("{{ message }}");
+            {% endfor %}
+        {% endif %}
+    });
+</script>
 </body>
 </html>

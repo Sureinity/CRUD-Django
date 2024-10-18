@@ -23,14 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9wd0myfn%c+b=z&%+9jvr@sp&6a7(x93%!z4gh2!-ie-_dnj!^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
 #Session Configuration
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_CLOSE = True
-SESSION_COOKIE_AGE = 30#5 Minutes (Changed to 10 seconds: DEBUG)
+SESSION_COOKIE_AGE = 5#5 Minutes (Changed to 10 seconds: DEBUG)
 
 
 # Application definition

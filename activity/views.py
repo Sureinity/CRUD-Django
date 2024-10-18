@@ -29,8 +29,6 @@ from .models import Fruits, User
 @never_cache # URL 'login' will never be cached; user will not be directed to that page if it using browser's navigation [ALT + left|right arrow keys]
 @check_session_or_redirect
 def login(request):
-    form = AuthenticationForm()
-    
     if request.method == "POST":
         form = AuthenticationForm(request.POST)
         if form.is_valid():
@@ -39,41 +37,40 @@ def login(request):
             
             try:
                 user = User.objects.get(username=username)
+                if check_password(password, user.password):
+                    request.session["username"] = user.username 
+                    request.session["id"] = user.id
+                    request.session["role"] = user.role
+                    
+                    expiry_time = timezone.now() + timedelta(seconds=request.session.get_expiry_age())
+                    request.session["expiry_time"] = expiry_time.isoformat()
+                    
+                    welcomeMessages = [
+                        f"Hello there, {user.name}!",
+                        f"Good evening, {user.name}!"
+                    ]
+
+                    if request.session["role"] == 1:
+                        messages.success(request, random.choice(welcomeMessages))
+                        return redirect("admin")
+                    
+                    messages.success(request, random.choice(welcomeMessages))
+                    return redirect("list_fruit")
+                else:
+                    messages.error(request, "Username or password incorrect.")
             except User.DoesNotExist:
-                form.add_error(None, "Username or password incorrect.")  # Add error to the form
-                return render(request, "login.html", {"form": form })
-
-            if check_password(password, user.password):
-                print("correct")
-            else:
-                print("wrong")
-
-            if form.authenticate(username, password):
-                request.session["username"] = user.username 
-                request.session["id"] = user.id
-                request.session["role"] = user.role
-                
-                expiry_time = timezone.now() + timedelta(seconds=request.session.get_expiry_age())
-                request.session["expiry_time"] = expiry_time.isoformat()
-                
-                if request.session["role"] == 1:
-                    return redirect("admin")
-                
-                welcomeMessages = [
-                    f"Hello there, {user.name}!",
-                    f"Good evening, {user.name}!"
-                ]
-                messages.success(request, random.choice(welcomeMessages))
-                return redirect("list_fruit")
-            else:
-                form.add_error(None, "Username or password incorrect.")  # Add error if authentication fails
-                return render(request, "login.html", {"form": form})
+                messages.error(request, "Username or password incorrect.")
+            
+            return redirect('login')  # Redirect back to login page on failed attempt
+    else:
+        form = AuthenticationForm()
     
     return render(request, "login.html", {"form": form})
 
 
 def logout(request):
     if request.method == "POST":
+        messages.success(request, "You have logged out.")
         request.session.flush()
     
     return redirect("login")
@@ -159,8 +156,8 @@ def edit_fruit(request, fruit_id):
         if form.is_valid():
             messages.success(request, "Fruit successfully updated!")
             form.save()
-    else:
-        messages.error(request, "Update error!")
+        else:
+            messages.error(request, "Update error!")
     
     return redirect('list_fruit')
 
@@ -178,7 +175,7 @@ def admin(request):
         if form.is_valid():
             form.save()
     context = {
-        "userList": User.objects.exclude(id=1),
+        "userList": User.objects.exclude(username="admin"),
         "form": form,
     }
 
@@ -192,13 +189,11 @@ def create_account(request):
             form.save()
             return redirect("admin")
     else:
-        form = form = CreateAccount_ChangePasword_Form()
+        form = CreateAccount_ChangePasword_Form()
+    
 
     print(form.errors)
-    return render(request, "admin.html", {
-        "userList": User.objects.all(),
-        "form": form,  # Ensure form is passed back
-    })
+    return render(request, "admin.html", { "form":form })
 
 @session_expiration_or_redirect
 def edit_account(request, user_id):

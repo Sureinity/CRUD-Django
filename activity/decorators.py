@@ -6,13 +6,14 @@ from django.shortcuts import redirect, render
 
 def check_session_or_redirect(view_func):
     def wrapper(request):
-        if request.session.get("id"):
+        if request.session.get("role") == 2:
             return redirect("list_fruit")
+        if request.session.get("role") == 1:
+            return redirect("admin")
         return view_func(request)
     return wrapper
 
 
-#PROBLEM: Fix when there is no session or user is still not logged in, the session_expired.html should not be accessible/shown: NOT YET IMPLEMENTED
 def session_expiration_or_redirect(view_func):
     def wrapper(request, *args, **kwargs):
         try:
@@ -20,8 +21,9 @@ def session_expiration_or_redirect(view_func):
             expiry_time = datetime.fromisoformat(expiry_time_str)
             if timezone.now() > expiry_time:
                 messages.info(request, "Your session expired. Please log in again.")
-                return render(request, "session_expired.html")
+                return redirect("login")
         except TypeError:
+                messages.info(request, "Your session expired. Please log in again.")
                 return redirect("login")
         return view_func(request, *args, **kwargs)
     return wrapper

@@ -18,12 +18,6 @@ class AuthenticationForm(forms.Form):
                                              "name":"password",
                                              "required": True,}))
     
-    def authenticate(self, username, password):
-        user = User.objects.get(username=username)
-        if user.username == username and check_password(password, user.password):
-            return True
-
-    
 
 class EditAccount_Form(forms.ModelForm):
     class Meta:
