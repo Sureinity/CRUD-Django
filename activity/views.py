@@ -47,7 +47,7 @@ def login(request):
                     
                     welcomeMessages = [
                         f"Hello there, {user.name}!",
-                        f"Good evening, {user.name}!"
+                        f"Hi, {user.name}!"
                     ]
 
                     if request.session["role"] == 1:
@@ -75,9 +75,7 @@ def logout(request):
     
     return redirect("login")
 
-@never_cache
-def session_expired(request):
-    return render(request, "session_expired.html")
+
 
 
 
@@ -85,6 +83,7 @@ def session_expired(request):
 #               FRUITS CRUD              #
 ##########################################
 @never_cache
+#@check_session_or_redirect
 @session_expiration_or_redirect
 def list_search(request): 
     
@@ -191,9 +190,7 @@ def create_account(request):
     else:
         form = CreateAccount_ChangePasword_Form()
     
-
-    print(form.errors)
-    return render(request, "admin.html", { "form":form })
+    return render(request, "admin.html", { "form": form, "userList": User.objects.exclude(username="admin") })
 
 @session_expiration_or_redirect
 def edit_account(request, user_id):

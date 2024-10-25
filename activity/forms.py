@@ -10,9 +10,10 @@ from .models import User, Fruits
 ##########################################
 class AuthenticationForm(forms.Form):
     username =  forms.CharField(widget=TextInput(attrs={"class":"form-control",
-                                             "id":"username",
-                                             "name":"username",
-                                             "required": True,}))
+                                                        "id":"username",
+                                                        "name":"username",
+                                                        "required": True,
+                                                        "autocomplete":"off",}))
     password =  forms.CharField(widget=PasswordInput(attrs={"class":"form-control",
                                              "id":"password",
                                              "name":"password",
@@ -22,13 +23,14 @@ class AuthenticationForm(forms.Form):
 class EditAccount_Form(forms.ModelForm):
     class Meta:
         model = User
-        fields = "__all__"
+        fields = ["username", "password", "name", "email"]
         widgets = {
                 "username": TextInput(attrs={"class":"form-control",
                                              "id":"username",
                                              "name":"username",
                                              "required": True,
-                                             "placeholder": "Enter username",}),
+                                             "placeholder": "Enter username",
+                                             "autocomplete":"off",}),
                 "password": PasswordInput(attrs={"class":"form-control",
                                              "id":"password",
                                              "name":"password",
@@ -38,12 +40,14 @@ class EditAccount_Form(forms.ModelForm):
                                              "id":"name",
                                              "name":"name",
                                              "required": True,
-                                             "placeholder": "Enter name",}),
+                                             "placeholder": "Enter name",
+                                             "autocomplete":"off",}),
                 "email": EmailInput(attrs={"class":"form-control",
                                              "id":"email",
                                              "name":"email",
                                              "required": True,
-                                             "placeholder": "Enter username",}),
+                                             "placeholder": "Enter username",
+                                             "autocomplete":"off",}),
         }
 
 class CreateAccount_Form(EditAccount_Form):
@@ -69,7 +73,7 @@ class FruitForm(forms.ModelForm):
                                                 "name": "fruitQty",
                                                 "id":"fruitQty",
                                                 "required":True,
-                                                "autocomplete":False}),
+                                                "autocomplete":"off"}),
         }
 
 class SearchForm(forms.Form):
@@ -78,4 +82,4 @@ class SearchForm(forms.Form):
                                                                     "id":"fruitSearch",
                                                                     "placeholder":"Search here...",
                                                                     "autofocus":False,
-                                                                    "autocomplete": False}))
+                                                                    "autocomplete": "off"}))

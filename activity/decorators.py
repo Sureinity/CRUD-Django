@@ -6,9 +6,9 @@ from django.shortcuts import redirect, render
 
 def check_session_or_redirect(view_func):
     def wrapper(request):
-        if request.session.get("role") == 2:
+        if request.session.get("role") == 2 or request.session.get("role") == 3:
             return redirect("list_fruit")
-        if request.session.get("role") == 1:
+        elif request.session.get("role") == 1:
             return redirect("admin")
         return view_func(request)
     return wrapper
@@ -30,7 +30,7 @@ def session_expiration_or_redirect(view_func):
 
 def only_admin(view_func):
     def wrapper(request, *args, **kwargs):
-        if request.session.get("role") == 2:
+        if request.session.get("role") == 2 or request.session.get("role") == 3:
             return render(request, "not_authorized.html")
         return view_func(request, *args, **kwargs)
     return wrapper

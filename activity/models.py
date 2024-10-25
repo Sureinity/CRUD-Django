@@ -7,9 +7,9 @@ class User(models.Model):
     VIEWER = 3
 
     CHOICES = (
-        (ADMIN, "admin"),
-        (USER, "user"),
-        (VIEWER, "viewer")
+        (ADMIN, "Admin"),
+        (USER, "Editor"),
+        (VIEWER, "Viewer")
     )
 
     username = models.CharField(max_length=150, unique=True)

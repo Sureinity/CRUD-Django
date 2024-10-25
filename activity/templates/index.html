@@ -39,22 +39,22 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg" style="background-color: #343a40; padding: 1rem 0;">
+<nav class="navbar navbar-expand-lg" style="background-color: #343a40;">
     <div class="container-fluid">
         <a class="navbar-brand text-light" href="{% url 'list_fruit' %}">
-		Item List {%if request.session.role == 1%}<a href="{% url 'admin' %}" class="text-light badge bg-secondary">Admin</a>{% endif %}
+            Item List
+            {% if request.session.role == 1 %}
+                <span class="badge bg-secondary ms-2">Admin</span>
+            {% endif %}
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <form method="get" action="{% url 'search_query' %}" class="d-flex align-items-center w-50">
+            <form method="get" action="{% url 'search_query' %}" class="d-flex w-50">
                 {% csrf_token %}
-                <div class="input-group mb-0">
-                    <input type="text" class="form-control rounded-pill" placeholder="Search..." aria-label="Search" name="query">
-                    <button type="submit" class="btn btn-outline-light rounded-pill" hidden>Search</button>
-                </div>
+                <input type="text" class="form-control rounded-pill" placeholder="Search..." aria-label="Search" name="query">
+                <button type="submit" class="btn btn-outline-light rounded-pill ms-2">Search</button>
             </form>
         </div>
         <ul class="navbar-nav ms-auto">
@@ -66,7 +66,6 @@
         </ul>
     </div>
 </nav>
-
 
 
 
@@ -122,7 +121,7 @@
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title">Delete Fruit - {{ data.fruit_name }}</h5>
+                                                            <h5 class="modal-title">Delete Item - {{ data.fruit_name }}</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <form method="POST" action="{% url 'delete_fruit' data.id %}">
@@ -144,18 +143,18 @@
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title">Edit Fruit - {{ data.fruit_name }}</h5>
+                                                            <h5 class="modal-title">Edit Item - {{ data.fruit_name }}</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <form action="{% url 'edit_fruit' data.id %}" method="POST">
                                                             {% csrf_token %}
                                                             <div class="modal-body">
                                                                 <div class="form-group mb-3">
-                                                                    <label for="fruit_name" class="form-label">Fruit Name</label>
+                                                                    <label for="fruit_name" class="form-label">Item Name</label>
                                                                     <input type="text" class="form-control" id="fruit_name" name="fruit_name" value="{{ data.fruit_name }}" required>
                                                                 </div>
                                                                 <div class="form-group mb-3">
-                                                                    <label for="fruit_qty" class="form-label">Fruit Quantity</label>
+                                                                    <label for="fruit_qty" class="form-label">Item Quantity</label>
                                                                     <input type="number" class="form-control" id="fruit_qty" name="fruit_qty" value="{{ data.fruit_qty }}" min="0" required>
                                                                 </div>
                                                             </div>
@@ -187,14 +186,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Fruit</h5>
+                    <h5 class="modal-title">Add Item</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{% url 'create_fruit' %}">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="form-group mb-3">
-                            <label for="" class="form-label">Fruit Name</label>
+                            <label for="" class="form-label">Item Name</label>
                             {{ form.fruit_name }}
                         </div>
                         <div class="form-group mb-3">
